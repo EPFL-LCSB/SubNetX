@@ -1,0 +1,2 @@
+reactionsA/ECA	reactionsB/ECB	Tanimoto_FBI_Scores	 TL0	TL1	TL2	TL3	TL4	TL5	TL6	TL7
+reactionA	reactionB	0	0	0	0	0	0	0	0	0

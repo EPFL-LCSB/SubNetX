@@ -1,0 +1,62 @@
+﻿Parameter,Code,Min,Max
+Number of atoms,Num_atoms,1,1000
+MW,MW,0,1000
+Total charge,Total_charge,-1000,1000
+total negative charge,total_negative_charge,0,1000
+total positive charge,total_positive_charge,0,1000
+Number of rings,Num_Rings,0,1000
+number of rotatable bonds,Num_rotatable_bonds,0,1000
+triple bond presence,if_triple_bond,0,1000
+benzene,benzene,0,1000
+pyridine,pyridine,0,1000
+pyrimidine,pyrimidine,0,1000
+pyridazine,pyridazine,0,1000
+imidazole,imidazole,0,1000
+imidazole cation,imidazole_cation,0,1000
+pyrrole,pyrrole,0,1000
+pyrazine,pyrazine,0,1000
+furan,furan,0,1000
+pyrazole,pyrazole,0,1000
+thiophene,thiophene,0,1000
+isoxazole,isoxazole,0,1000
+isoxazole cation,isoxazole_cation,0,1000
+oxazole,oxazole,0,1000
+thiazole,thiazole,0,1000
+thiazole cation,thiazole_cation,0,1000
+"1,2,3,4-tetrazole",tetrazole_1234,0,1000
+"1,2,3,5-tetrazole",tetrazole_1235,0,1000
+"1,3,4-triazole",triazole_134,0,1000
+"1,2,3-triazole",triazole_123,0,1000
+"1,2,4-triazole",triazole_124,0,1000
+"1,3,4-thiadiazole",thiadiazole_134,0,1000
+"1,2,3-thiadiazole cation",thiadiazole_cation_123,0,1000
+other ring type,undefined_ring_type,0,1000
+Cu,Cu,0,60
+Co,Co,0,60
+Mg,Mg,0,60
+I,I,0,60
+F,F,0,60
+C,C,1,60
+Cl,Cl,0,60
+B,B,0,60
+Se,Se,0,60
+As,As,0,60
+Na,Na,0,60
+Ni,Ni,0,60
+Mn,Mn,0,60
+Ca,Ca,0,60
+Br,Br,0,60
+N,N,0,60
+Cr,Cr,0,60
+Cd,Cd,0,60
+Mo,Mo,0,60
+K,K,0,60
+Ag,Ag,0,60
+Hg,Hg,0,60
+Fe,Fe,0,60
+O,O,0,60
+P,P,0,60
+S,S,0,60
+Si,Si,0,60
+if_CoA_compound,if_CoA_compound,0,1
+LD50(mg/kg),LD50_mg_kg,0,100000

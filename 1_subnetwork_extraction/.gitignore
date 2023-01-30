@@ -1,0 +1,9 @@
+.idea
+__pycache__/*
+code/__pycache__/*
+data/*/*.gpickle
+data/*/*.json
+projects/*
+analyses/data/*
+analyses/figures/*
+analyses/*.csv

@@ -1,0 +1,12 @@
+num_nodes,2986
+num_edges,6198
+num_nodes_connected,2986
+num_isolated_islands,1
+num_nodes_biggest_island,2986
+num_edges_biggest_island,6198
+percent_nodes_biggest_island,100.0
+percent_edges_biggest_island,100.0
+if_target_in_biggest_island,True
+if_precursor_in_biggest_island,True
+if_target_and_precursor_in_the_same_island,True
+number of reactions total,10611
