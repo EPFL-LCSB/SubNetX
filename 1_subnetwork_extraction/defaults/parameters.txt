@@ -30,6 +30,11 @@ boundaries_alternatives_num|1
 num_shortest_pathways|15
 num_pathways_to_model|1
 numSimPrecursorsLimit|1
+minplus|1000
+structure_based_pairs|0
+prefer_known|1
+use_exponential_transformation|1
+use_auxilary_network|0
 
 ##################################
 #   Data source for rxn network  #

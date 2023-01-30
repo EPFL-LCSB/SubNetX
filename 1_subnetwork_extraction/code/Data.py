@@ -55,7 +55,7 @@ class Data():
             self.param_file = '../defaults/parameters.txt'
 
         if not os.path.exists(self.compound_limits_file):
-            self.compound_limits_file = '../default_parameters/compound_parameters.csv'
+            self.compound_limits_file = '../defaults/compound_parameters.csv'
 
         if not os.path.exists(self.excludelist_compounds):
             self.excludelist_compounds = "../defaults/excludelists/compounds.txt"
@@ -91,8 +91,10 @@ class Data():
         self.precursorCompounds = []
         self.boundaries_total= []
 
-        # set the parameters
-        self.readParametersFile()
+        # set the default parameters
+        self.readParametersFile("../defaults/parameters.txt")
+        # reset for the specific project parameters
+        self.readParametersFile("../projects/"+self.projectname+"/parameters.txt")
 
         # set the metabolites of the model
         self.getModelMetabolites()
@@ -117,13 +119,13 @@ class Data():
     #                                    set parameters and paths
     ####################################################################################################################
 
-    def readParametersFile(self):
+    def readParametersFile(self, filename):
         """
         Set the parameters of the execution
         :return:
         """
         dict_param = dict()
-        with open("../projects/"+self.projectname+"/parameters.txt") as f:
+        with open(filename) as f:
             for line in f:
                 if not line.startswith('#') and line.strip() != '':
                     dict_param[line.split('|')[0]] = line.split('|')[1].strip()
@@ -132,15 +134,15 @@ class Data():
         else: self.main_precursor = dict_param['main_precursor']
         self.main_target = dict_param['main_target']
         self.num_shortest_pathways = int(dict_param['num_shortest_pathways'])
-        self.minplus = int(dict_param['minplus'])
+        if 'minplus' in dict_param: self.minplus = int(dict_param['minplus'])
         self.num_pathways_to_model = int(dict_param['num_pathways_to_model'])
         self.run_expansion = [True if dict_param['run_expansion']=='1' else False][0]
         self.filter_precursor_structure = [True if dict_param['filter_precursor_structure']=='1' else False][0]
         self.lowest_atom_conservation_threshold=float(dict_param['lowest_atom_conservation_threshold'])
-        self.structure_based_pairs = int(dict_param['structure_based_pairs'])
+        if 'structure_based_pairs' in dict_param: self.structure_based_pairs = int(dict_param['structure_based_pairs'])
 
-        self.prefer_known = int(dict_param['prefer_known'])
-        self.use_exponential_transformation = int(dict_param['use_exponential_transformation'])
+        if 'prefer_known' in dict_param:self.prefer_known = int(dict_param['prefer_known'])
+        if 'use_exponential_transformation' in dict_param: self.use_exponential_transformation = int(dict_param['use_exponential_transformation'])
         # possible distance types: dist, dist_exp, dist_known, dist_exp_known
         if self.prefer_known == 1 and self.use_exponential_transformation == 1:
             self.distance_transformation = 'dist_exp_known' # known exponential distance
@@ -155,7 +157,7 @@ class Data():
         self.numSimPrecursorsLimit=int(dict_param['numSimPrecursorsLimit'])
 
         self.reaction_network = dict_param['reaction_network']
-        self.use_auxilary_network = [True if dict_param['use_auxilary_network']=='1' else False][0]
+        if 'use_auxilary_network' in dict_param: self.use_auxilary_network = [True if dict_param['use_auxilary_network']=='1' else False][0]
 
         self.graph_file = self.data_folder+self.reaction_network+'/'+self.reaction_network+'.gpickle'
 
@@ -294,17 +296,18 @@ class Data():
 
          # filter out the reactions that are in excludelists/reactions.txt
         self.df_reactions = self.df_reactions[~self.df_reactions.rxnUID.isin(self.excludereactions)]
-        edges_uids_keep = set(self.df_reactions['UID of pair'].to_list())
-        self.df_network = self.df_network[self.df_network['UID of pair'].isin(edges_uids_keep)]
-
-        # exclude / keep pairs with structure based similarity score
-        self.df_network = self.df_network[self.df_network['structure_based']<=self.structure_based_pairs]
-
+        
         # keep only balanced reactions
         self.df_reaction_balance = self.df_reaction_balance[self.df_reaction_balance['balance']==1]
         self.df_reactions = self.df_reactions.merge(self.df_network, on="UID of pair", how='inner')
         self.df_reactions = self.df_reactions.merge(self.df_reaction_balance, on='rxnUID', how='inner')
         self.df_reactions = self.df_reactions.merge(self.df_reactions_comp, on='rxnUID', how='inner')
+        
+        edges_uids_keep = set(self.df_reactions['UID of pair'].to_list())
+        self.df_network = self.df_network[self.df_network['UID of pair'].isin(edges_uids_keep)]
+
+        # exclude / keep pairs with structure based similarity score
+        self.df_network = self.df_network[self.df_network['structure_based']<=self.structure_based_pairs]
 
         # get dictionary with smiles for each compound
         self.dict_smiles = dict(zip(self.df_compounds.cUID, self.df_compounds.SMILES))
