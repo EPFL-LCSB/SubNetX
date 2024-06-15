@@ -33,7 +33,7 @@ class ChassisModel(ThermoModel):
     
     def __init__(self, model,
                  organism='', met_lexicon=None, rxn_lexicon=None, 
-                 products=[], inplace=True,
+                 inplace=True,
                  *args, **kwargs):
         '''
         
@@ -66,7 +66,7 @@ class ChassisModel(ThermoModel):
         self.organism = organism
         self._met_lexicon = met_lexicon
         self._rxn_lexicon = rxn_lexicon
-        self._products = products
+        self._products = []
         
         self._hetero_mets = {} # a dict to keep mets_id
         self._hetero_rxns = [] # a list to keep rxns

@@ -103,29 +103,16 @@ def met_parser(mets, met_list, host):
         mets_charge[met] = met_data['M_PR_CHARGE'].values[0] if not pd.isna(met_data['M_PR_CHARGE'].values[0]) \
             else 0
         kegg_id = met_data['M_XR_KEGG'].values[0]
-        other_fields = met_data['M_XR_ALL_OTHER'].values[0]
-        if host == 'ecoli':
-            if not pd.isna(kegg_id):
-                try:
-                    mets_annotation[met] = \
-                        kegg2seed[kegg2seed['kegg']==kegg_id]['seed'].values[0]
-                except IndexError: # there is no seed match for this kegg
-                    mets_annotation[met] = ''
-                    numerator = numerator +1
-            else:
+        if not pd.isna(kegg_id):
+            try:
+                mets_annotation[met] = \
+                    kegg2seed[kegg2seed['kegg']==kegg_id]['seed'].values[0]
+            except IndexError: # there is no seed match for this kegg
                 mets_annotation[met] = ''
                 numerator = numerator +1
-        elif host == 'yeast':
-            if not pd.isna(kegg_id):
-                if kegg_id == 'C01328' or kegg_id == 'C00080': # for H2O and H+, use seed
-                    mets_annotation[met] = \
-                        kegg2seed[kegg2seed['kegg']==kegg_id]['seed'].values[0]
-                else:
-                    mets_annotation[met] = kegg_id
-            else:
-                # kegg id not found, look for chebi
-                mets_annotation[met] = extract_chebi(other_fields, numerator)
-                numerator = numerator +1
+        else:
+            mets_annotation[met] = ''
+            numerator = numerator +1
     return mets_formula, mets_name, mets_charge, mets_annotation
 
 def extract_chebi(string, numerator):
