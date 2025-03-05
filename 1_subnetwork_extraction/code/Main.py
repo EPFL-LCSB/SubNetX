@@ -17,6 +17,11 @@ __author__ = 'anastasia'
 ##
 import os
 
+import sys
+# Get the script's directory and add it to sys.path
+script_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(script_dir)
+
 from Data import Data
 from Extraction import *
 from Convergence import *
