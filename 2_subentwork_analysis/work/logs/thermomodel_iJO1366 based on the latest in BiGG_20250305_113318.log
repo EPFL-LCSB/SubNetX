@@ -1,1 +1,6 @@
 2025-03-05 11:33:18,777 - thermomodel_iJO1366 based on the latest in BiGG - INFO - # Model initialized with units kcal/mol and temperature 298.15 K
+2025-03-05 11:46:11,000 - thermomodel_iJO1366 based on the latest in BiGG - INFO - # Model initialized with units kcal/mol and temperature 298.15 K
+2025-03-05 11:46:33,831 - thermomodel_iJO1366 based on the latest in BiGG - DEBUG - 'slim_optimize' ((), {}) 0.03 sec
+2025-03-05 11:48:01,511 - thermomodel_iJO1366 based on the latest in BiGG - DEBUG - 'slim_optimize' ((), {}) 0.00 sec
+2025-03-05 11:49:16,528 - thermomodel_iJO1366 based on the latest in BiGG - INFO - # Model initialized with units kcal/mol and temperature 298.15 K
+2025-03-05 11:49:37,771 - thermomodel_iJO1366 based on the latest in BiGG - DEBUG - 'slim_optimize' ((), {}) 0.28 sec

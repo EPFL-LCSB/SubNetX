@@ -1,0 +1,7 @@
+biopython
+cobra>=0.13
+optlang
+pandas>=0.24.2
+pytest
+pytfa
+xlrd

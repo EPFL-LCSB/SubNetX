@@ -1,0 +1,2 @@
+nodedef>name VARCHAR,label VARCHAR,labelvisible BOOLEAN,width DOUBLE,height DOUBLE,color VARCHAR
+edgedef>node1 VARCHAR,node2 VARCHAR,directed BOOLEAN, color VARCHAR

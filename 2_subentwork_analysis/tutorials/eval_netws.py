@@ -19,15 +19,16 @@ path_mod = '../tutorials/results_processed-master/EPFL'
 #                              sheet_name='Sheet1',
 #                              header=0)['Compound'].tolist()
 target_list = [
-                'ajmalicine', 
-                'benzyl_cinnamate', 
-                   'benzylbenzoate', 
-                   'berberine', 
-                'N_cinnamoyl_serotonin', 
-                'Quercetin_3_O_6_acetylglucoside',
-                'scopolamine', 
-                'strictosidine',
-                'tadalafil',
+                # 'ajmalicine', 
+                # 'benzyl_cinnamate', 
+                #    'benzylbenzoate', 
+                #    'berberine', 
+                # 'N_cinnamoyl_serotonin', 
+                # 'Quercetin_3_O_6_acetylglucoside',
+                # 'scopolamine', 
+                # 'strictosidine',
+                # 'tadalafil',
+                'Biotin',
                ]
 
 if __name__ == "__main__":

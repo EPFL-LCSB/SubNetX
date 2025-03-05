@@ -1,0 +1,4 @@
+Number of all outer boundaries,Edges in subnetwork before removing the edges with nonconverged boundary,Edges to remove,Edges in subnetwork after removing the edges with nonconverged boundary,Nodes in subnetwork before removing the nodes on islands without model metabolites,Nodes in subnetwork after removing the nodes on islands without model metabolites
+72,5257,90,5167,2407,2397
+6,5167,6,5161,2397,2393
+1,5159,1,5158,2393,2393
