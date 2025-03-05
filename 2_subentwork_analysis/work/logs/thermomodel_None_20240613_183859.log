@@ -1,0 +1,2 @@
+2024-06-13 18:38:59,996 - thermomodel_None - INFO - # Model initialized with units kcal/mol and temperature 298.15 K
+2024-06-13 18:39:22,769 - thermomodel_None - DEBUG - 'slim_optimize' ((), {}) 0.24 sec
