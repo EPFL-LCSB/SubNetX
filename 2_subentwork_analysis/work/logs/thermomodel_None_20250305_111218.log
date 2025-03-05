@@ -1,2 +1,0 @@
-2025-03-05 11:12:18,273 - thermomodel_None - INFO - # Model initialized with units kcal/mol and temperature 298.15 K
-2025-03-05 11:12:39,383 - thermomodel_None - DEBUG - 'slim_optimize' ((), {}) 0.01 sec

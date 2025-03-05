@@ -1,6 +1,0 @@
-2024-06-13 18:41:37,898 - thermomodel_None - INFO - # Model initialized with units kcal/mol and temperature 298.15 K
-2024-06-13 18:42:00,757 - thermomodel_None - DEBUG - 'slim_optimize' ((), {}) 0.24 sec
-2024-06-13 18:42:15,612 - thermomodel_None - INFO - # Model initialized with units kcal/mol and temperature 298.15 K
-2024-06-13 18:42:35,259 - thermomodel_None - DEBUG - 'slim_optimize' ((), {}) 0.44 sec
-2024-06-13 18:44:25,728 - thermomodel_None - DEBUG - 'slim_optimize' ((), {}) 0.00 sec
-2024-06-13 18:45:11,913 - thermomodel_None - DEBUG - 'slim_optimize' ((), {}) 0.00 sec
