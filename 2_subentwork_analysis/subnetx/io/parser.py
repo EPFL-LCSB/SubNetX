@@ -17,8 +17,8 @@ def input_parser_netw(the_path):
     # a function to parse the pathways, metabolites and reactions input files
     # target: str, the name of taget compound
     
-    met_list = pd.read_csv(pjoin(the_path,'compounds.tsv'), sep='\t')
-    rxn_list = pd.read_csv(pjoin(the_path,'reactions.tsv'), sep='\t')
+    met_list = pd.read_csv(pjoin(the_path,'output_optimization_input/compounds.tsv'), sep='\t')
+    rxn_list = pd.read_csv(pjoin(the_path,'output_optimization_input/reactions.tsv'), sep='\t')
     # the metabolite IDs are numbers, we should convert them to strings
     met_list['M_PR_UID'] = met_list['M_PR_UID'].astype(str)
     rxn_list['R_PR_UID'] = rxn_list['R_PR_UID'].astype(str)
@@ -29,9 +29,9 @@ def input_parser_pthw(the_path):
     # a function to parse the pathways, metabolites and reactions input files
     # target: str, the name of taget compound
     
-    met_list = pd.read_csv(pjoin(the_path,'compounds.tsv'), sep='\t')
-    rxn_list = pd.read_csv(pjoin(the_path,'reactions.tsv'), sep='\t')
-    pthw_list = pd.read_csv(pjoin(the_path,'pathways.tsv'), sep='\t')
+    met_list = pd.read_csv(pjoin(the_path,'output_optimization_input/compounds.tsv'), sep='\t')
+    rxn_list = pd.read_csv(pjoin(the_path,'output_optimization_input/reactions.tsv'), sep='\t')
+    pthw_list = pd.read_csv(pjoin(the_path,'output_optimization_input/pathways.tsv'), sep='\t')
     # the metabolite IDs are numbers, we should convert them to strings
     met_list['M_PR_UID'] = met_list['M_PR_UID'].astype(str)
     rxn_list['R_PR_UID'] = rxn_list['R_PR_UID'].astype(str)
@@ -102,8 +102,19 @@ def met_parser(mets, met_list, host):
             else 'generic_metabolite'
         mets_charge[met] = met_data['M_PR_CHARGE'].values[0] if not pd.isna(met_data['M_PR_CHARGE'].values[0]) \
             else 0
-        
-        mets_annotation[met] = ''
+        # Use annotations if exist to improve integration
+        if 'M_XR_KEGG' in met_data.columns:
+            kegg_id = met_data['M_XR_KEGG'].values[0]
+            if not pd.isna(kegg_id):
+                try:
+                    mets_annotation[met] = \
+                        kegg2seed[kegg2seed['kegg']==kegg_id]['seed'].values[0]
+                except IndexError: # there is no seed match for this kegg
+                    mets_annotation[met] = 'fakeID_{}'.format(numerator)
+                    numerator = numerator +1
+        else:
+           mets_annotation[met] = 'fakeID_{}'.format(numerator)
+           numerator = numerator +1
                     
 
     return mets_formula, mets_name, mets_charge, mets_annotation
