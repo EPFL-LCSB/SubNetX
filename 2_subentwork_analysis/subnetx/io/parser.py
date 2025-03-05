@@ -105,6 +105,7 @@ def met_parser(mets, met_list, host):
         
         mets_annotation[met] = ''
                     
+
     return mets_formula, mets_name, mets_charge, mets_annotation
 
 def extract_chebi(string, numerator):
