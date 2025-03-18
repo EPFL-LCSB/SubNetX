@@ -8,24 +8,24 @@ benzyl_cinnamate,1468814955
 benzylbenzoate,1467981074
 Quercetin_3_O_6_acetylglucoside,1468630550
 tadalafil,1468097851
-Aclacinomycin T,1468030008
+Aclacinomycin_T,1468030008
 beta-Elemene,1468016646
 Aklavinone,1467980391
 salicylamide,1468134444
-Methyl (indol-3-yl)acetate,1468046790
+Methyl_(indol-3-yl)acetate,1468046790
 caspofungin,1468100564
 Thioguanine,1467928712
-Cephalosporin C,1467875955
+Cephalosporin_C,1467875955
 Cytidine,1467871323
 13-Deoxycarminomycin,1467980439
 Carminomycin,1467980486
-Urdamycin A,1467980259
-Antibiotic G-418,1468021551
+Urdamycin_A,1467980259
+kaempferitrin,1468021551
 Ribostamycin,1467883315
 Paclitaxel,1467926198
-salinosporamide A,1468166236
+salinosporamide_A,1468166236
 "3,3'-diindolylmethane",1468172484
-9-deacetoxyfumigaclavine C,1468243150
+9-deacetoxyfumigaclavine_C,1468243150
 Sesamin,1467964724
 Azomycin,1467992154
 dehydrocyclopeptine,1468269896
@@ -38,7 +38,7 @@ Biotin,1467867147
 Streptomycin,1467870695
 Lovastatin,1467923515
 4-Hydroxyphenylethanol,1467914452
-Neomycin B,1467883083
+Neomycin_B,1467883083
 Paromomycin,1467875096
 Spectinomycin,1467886008
 (-)-Menthol,1467870535
@@ -52,14 +52,14 @@ Pyrrolnitrin,1467980989
 Emodin,1467958122
 SCHEMBL16471912,1468094512
 Picropodophyllin,1467964602
-18-oxotryprostatin A,1468250946
+18-oxotryprostatin_A,1468250946
 chaetoglobosin J,1468260408
 cytoglobosin D,1468260496
 Kaempferitrin,1468015586
 Asperlicin C,1468050581
 Quinine,1467918693
 echinocandin B,1468383903
-Nystatin A1,1467977678
+Nystatin_A1,1467977678
 Aphidicolin,1467914856
 Coumermycin A1,1467906911
 Gliotoxin,1467961229
@@ -73,13 +73,13 @@ Physostigmine,1467918795
 Daidzein,1467956419
 Novobiocin,1467906946
 Undecylprodigiosin,1467976327
-Jadomycin B,1467980067
+Jadomycin_B,1467980067
 gamma-Tocotrienol,1467988097
 DL-Cycloserine,1467920311
 Clavulanic acid,1467920096
-desferrioxamine E,1468173482
-Isopentenyl adenosine,1468010272
-raspberry ketone,1468259853
+desferrioxamine_E,1468173482
+Isopentenyl_adenosine,1468010272
+raspberry_ketone,1468259853
 Verruculogen,1468042437
 Chrysin,1467954101
 Aminopyrrolnitrin,1468050292
@@ -101,6 +101,108 @@ Paxilline,1467985406
 UNII-YO41R4YG55,1468161946
 holomycin,1469287270
 Mycophenolate,1468044994
-Ellagic acid,1467963577
+Ellagic_acid,1467963577
 Caffeine,1467926983
 diazepinomicin,1469290122
+Aclacinomycin_A,1468030045
+Artemisinate,1468044439
+Resveratrol,1467896992
+hydroxytyrosol,1468261150
+beta-Carotene,1467886150
+Violacein,1468050500
+curcumin,1468106094
+Naringenin,1467871750
+Codeine,1467915599
+Thebaine,1467915587
+Protocatechuic_acid,1467868585
+Gallic_acid,1467880463
+"cis,cis-muconic_acid",1467889109
+Catechol,1467866731
+p-Aminobenzoate,1467872398
+Gastrodin,1468015395
+p-hydroxybenzoate,1467867640
+4-tyrosol,1467914452
+salidroside,1467914466
+hydroxytyrosol,1468261150
+salicylic_acid,1467874758
+acetylsalicylic_acid,1467880291
+dicoumarol,1467874641
+L-phenylalanine,1467866580
+2-phenylacetaldehyde,1467872719
+2-phenylethylamine,1467908642
+2-phenylethanol,1467912893
+Mandelic_acid,1467910554
+E-cinnamate,1467871544
+benzylbenzoate,1467981074
+benzyl_cinnamate,1468814955
+benzyl_alcohol,1467872290
+ethyl_cinnamate,1467917082
+hydrocinnamyl_alcohol,1468714394
+methylbenzoate,1468046876
+methyl_cinnamate,1467917070
+Styrene,1467923571
+4-coumarate,1467874835
+caffeic_acid,1467878631
+4-vinylphenol,1467910931
+chavicol,1468015097
+estragol,1467959455
+anethole,1467959180
+4-hydroxyphenylbutan-2-one,1468259853
+rosmarinic_acid,1467884103
+ferulic_acid,1467880967
+vanillin,1467874207
+vanillic_acid,1467920194
+6-gingerol,1467959583
+eugenol,1467959469
+isoeugenol,1467959670
+methyleugenol,1467959482
+podophyllotoxin,1467964602
+L-tyrosine,1467866617
+p-Cresol,1467880753
+L-dopa,1467870034
+dopamine,1467898292
+norcoclaurine,1467915486
+reticuline,1467886235
+scoulerine,1467886249
+berberine,1467874237
+papaverine,1467918769
+tubocurarine,1467927678
+S-colchicine,1467928119
+galanthamine,1467935716
+novobiocin,1467906946
+Pinocembrin,1467951620
+chrysin,1467954101
+phloretin,1467874409
+resveratrol,1467896992
+2S-naringenin,1467871750
+apigenin,52615785
+kaempferol,1468200688
+myricetin,1467955129
+quercetin,1467870413
+rutin,1467910914
+catechin,1467919099
+epicatechin,1467919099
+2S-eriodictyol,1467910959
+homoeriodictyol,727994
+2S-hesperetin,1467882771
+luteolin,1467881156
+Cynaroside,1467899558
+Sakuranetin,1467951695
+Dihydrokaempferol,1467876496
+Prunetin,1467960318
+baicalin,1467954063
+L-tryptophan,1467866565
+5-hydroxytryptophan,1467873155
+melatonin,1467881882
+quinidine,1467918693
+quinine,1467918693
+violacein,1468050500
+etoposide,1467881698
+teniposide,1467967572
+droxidopa,1469343231
+atenolol,1468104051
+advantame,94668326
+aspartame,1467966459
+neotame,1468329052
+diflunisal,1467882612
+methyl_caprooyl_tyrosinate,374431087
