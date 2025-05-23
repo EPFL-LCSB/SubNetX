@@ -9,9 +9,13 @@ import pandas as pd
 from os.path import join as pjoin
 
 
-kegg2seed = pd.read_excel('../data/KEGG2SEED_update.xlsx',
-                             sheet_name='Sheet1',
-                             header=0)
+import os
+
+# Get the directory where this Python file is located
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Construct the full path to the data file
+filename = os.path.join(base_dir, 'data', 'KEGG2SEED_update.xlsx')
 
 def input_parser_netw(the_path):
     # a function to parse the pathways, metabolites and reactions input files
@@ -104,14 +108,15 @@ def met_parser(mets, met_list, host):
             else 0
         # Use annotations if exist to improve integration
         if 'M_XR_KEGG' in met_data.columns:
-            kegg_id = met_data['M_XR_KEGG'].values[0]
-            if not pd.isna(kegg_id):
-                try:
-                    mets_annotation[met] = \
-                        kegg2seed[kegg2seed['kegg']==kegg_id]['seed'].values[0]
-                except IndexError: # there is no seed match for this kegg
-                    mets_annotation[met] = 'fakeID_{}'.format(numerator)
-                    numerator = numerator +1
+            with open(filename, 'rb') as kegg2seed:
+                kegg_id = met_data['M_XR_KEGG'].values[0]
+                if not pd.isna(kegg_id):
+                    try:
+                        mets_annotation[met] = \
+                            kegg2seed[kegg2seed['kegg']==kegg_id]['seed'].values[0]
+                    except IndexError: # there is no seed match for this kegg
+                        mets_annotation[met] = 'fakeID_{}'.format(numerator)
+                        numerator = numerator +1
         else:
            mets_annotation[met] = 'fakeID_{}'.format(numerator)
            numerator = numerator +1
