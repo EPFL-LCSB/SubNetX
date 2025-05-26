@@ -8,6 +8,7 @@ Created on Mon Mar 22 20:25:53 2021
 import pandas as pd
 from os.path import join as pjoin
 import os
+import re
 
 RXN_ID_COL  = 'R_PR_UID'
 RXN_EQ_COL  = 'R_PR_STOICH'
@@ -63,6 +64,22 @@ def pthw_parser(pthw):
         bchd_pthws = []
     return rxns, target, boundary_mets, pthw_id, bchd_pthws
 
+# Helper function to parse one side
+def parse_side(side):
+    compounds = side.split('+')
+    parsed = {}
+    for compound in compounds:
+        compound = compound.strip()
+        # Match formats: (2)A, 2 A, 1B, A
+        match = re.match(r'(?:\((\d+)\)\s*|(\d+)\s+)?(.+)', compound)
+        if match:
+            coef1, coef2, name = match.groups()
+            coef = int(coef1 or coef2 or 1)
+            name = name.strip()
+            parsed[name] = coef
+    return parsed
+
+
 def rxn_parser(rxns, rxn_list):
     # it must contain the IDs and formulae of reactions
     mets = [] # list
@@ -73,12 +90,10 @@ def rxn_parser(rxns, rxn_list):
         rxn_data = rxn_list[rxn_list[RXN_ID_COL]==rxn]
         rxn_print = rxn_data[RXN_EQ_COL].values[0]
         participants = safe_split(rxn_print, ' ==> ', ' <=> ', ' <==>') # splitting reactants and products
-        reactants = participants[0].split(' + ') # splitting reactants
-        products = participants[1].split(' + ') # splitting products
-        reactant_dict = {str(couple.split(' ')[1]):-1*float(couple.split(' ')[0])\
-                         for couple in reactants}
-        product_dict = {str(couple.split(' ')[1]):1*float(couple.split(' ')[0])\
-                        for couple in products}
+        reactants = participants[0]
+        products = participants[1]
+        reactant_dict = parse_side(reactants)
+        product_dict = parse_side(products)
         # check if at least a compound is both among products and reactants, not to add the rxn
         if len(set(reactant_dict.keys()) - set(product_dict.keys())) != \
             len(set(reactant_dict.keys())):
