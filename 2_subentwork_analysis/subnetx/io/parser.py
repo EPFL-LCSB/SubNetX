@@ -7,9 +7,16 @@ Created on Mon Mar 22 20:25:53 2021
 """
 import pandas as pd
 from os.path import join as pjoin
-
-
 import os
+
+RXN_ID_COL  = 'R_PR_UID'
+RXN_EQ_COL  = 'R_PR_STOICH'
+MET_ID_COL  = 'M_PR_UID'
+MET_FOR_COL = 'M_PR_FORMULA'
+MET_NAM_COL = 'M_PR_NAME'
+MET_BAR_COL = 'M_PR_CHARGE'
+MET_ANN_COL = 'M_XR_KEGG'
+
 
 # Get the directory where this Python file is located
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -57,14 +64,15 @@ def pthw_parser(pthw):
     return rxns, target, boundary_mets, pthw_id, bchd_pthws
 
 def rxn_parser(rxns, rxn_list):
+    # it must contain the IDs and formulae of reactions
     mets = [] # list
     rxns_stoich = dict() # dict of dict
     remove_candid = []
     for rxn in rxns:
         rxn_dict = dict()
-        rxn_data = rxn_list[rxn_list['R_PR_UID']==rxn]
-        rxn_print = rxn_data['R_PR_STOICH'].values[0]
-        participants = safe_split(rxn_print, ' ==> ', ' <=> ') # splitting reactants and products
+        rxn_data = rxn_list[rxn_list[RXN_ID_COL]==rxn]
+        rxn_print = rxn_data[RXN_EQ_COL].values[0]
+        participants = safe_split(rxn_print, ' ==> ', ' <=> ', ' <==>') # splitting reactants and products
         reactants = participants[0].split(' + ') # splitting reactants
         products = participants[1].split(' + ') # splitting products
         reactant_dict = {str(couple.split(' ')[1]):-1*float(couple.split(' ')[0])\
@@ -93,23 +101,32 @@ def rxn_parser(rxns, rxn_list):
     return mets, rxns_stoich
 
 def met_parser(mets, met_list, host):
+    # at least it must contain the IDs and names of metabolites
     mets_formula = dict() # dict
     mets_name = dict() # dict
     mets_charge = dict() # dict
     mets_annotation = dict() # dict
     numerator = 0 # to enumerate metabolites without annotations
     for met in mets:
-        met_data = met_list[met_list['M_PR_UID']==met]
-        mets_formula[met] = met_data['M_PR_FORMULA'].values[0] \
-            if not pd.isna(met_data['M_PR_FORMULA'].values[0]) else ''
-        mets_name[met] = met_data['M_PR_NAME'].values[0] if not pd.isna(met_data['M_PR_NAME'].values[0]) \
+        met_data = met_list[met_list[MET_ID_COL]==met]
+        mets_name[met] = met_data[MET_NAM_COL].values[0] if not pd.isna(met_data[MET_NAM_COL].values[0]) \
             else 'generic_metabolite'
-        mets_charge[met] = met_data['M_PR_CHARGE'].values[0] if not pd.isna(met_data['M_PR_CHARGE'].values[0]) \
-            else 0
+        
+        if MET_FOR_COL in met_data.columns:
+            mets_formula[met] = met_data[MET_FOR_COL].values[0] \
+                if not pd.isna(met_data[MET_FOR_COL].values[0]) else ''
+        else:
+            mets_formula[met] = ''
+        if MET_BAR_COL in met_data.columns:
+            mets_charge[met] = met_data[MET_BAR_COL].values[0] \
+                if not pd.isna(met_data[MET_BAR_COL].values[0]) else 0
+        else:
+            mets_formula[met] = 0
+                
         # Use annotations if exist to improve integration
-        if 'M_XR_KEGG' in met_data.columns:
+        if MET_ANN_COL in met_data.columns:
             with open(filename, 'rb') as kegg2seed:
-                kegg_id = met_data['M_XR_KEGG'].values[0]
+                kegg_id = met_data[MET_ANN_COL].values[0]
                 if not pd.isna(kegg_id):
                     try:
                         mets_annotation[met] = \
@@ -123,15 +140,6 @@ def met_parser(mets, met_list, host):
                     
 
     return mets_formula, mets_name, mets_charge, mets_annotation
-
-def extract_chebi(string, numerator):
-    fields = string.split(',')
-    chebi_ids = [field for field in fields if 'ChEBI' in field]
-    if len(chebi_ids) == 0:
-        annotation = ''
-    else:
-        annotation = chebi_ids[0].upper().replace(': ',':').split(' ')[0]
-    return annotation
 
     
 def merge_pthw_info(pthw_list):
@@ -156,7 +164,7 @@ def merge_pthw_info(pthw_list):
     target = target
     return rxns, target, boundary_mets, pthw_id, bchd_pthws
 
-def safe_split(string, rep_1, rep_2):
+def safe_split(string, rep_1, rep_2='None', rep_3='None'):
     '''
     It splits string with rep_1 if possible, else with rep_2  
 
@@ -175,9 +183,11 @@ def safe_split(string, rep_1, rep_2):
         return string.split(rep_1)
     elif rep_2 in string:
         return string.split(rep_2)
+    elif rep_3 in string:
+        return string.split(rep_3)
     else:
-        raise Exception('Invalid format! Please, use either {} or {} to split entries in a field').format(
-            rep_1, rep_2)
+        raise Exception('Invalid format! Please, use either {} or {} or {} to split entries in a field').format(
+            rep_1, rep_2, rep_3)
 
 def find_pthw(pthw_ids, pthw_list):
     '''
