@@ -136,7 +136,7 @@ def met_parser(mets, met_list, host):
             mets_charge[met] = met_data[MET_BAR_COL].values[0] \
                 if not pd.isna(met_data[MET_BAR_COL].values[0]) else 0
         else:
-            mets_formula[met] = 0
+            mets_charge[met] = 0
                 
         # Use annotations if exist to improve integration
         if MET_ANN_COL in met_data.columns:
