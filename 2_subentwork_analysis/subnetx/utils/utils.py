@@ -6,12 +6,11 @@ Created on Wed Sep  2 11:39:03 2020
 @author: omid
 """
 
-import cobra
-import pandas as pd
 import numpy as np
 import requests
 from warnings import warn
-
+from cobra import Reaction
+from subnetx.core.chassis import EXPORTID
 
 kegg_url = 'http://rest.kegg.jp/get/{}/'
 
@@ -63,3 +62,32 @@ def find_blocked_rxns(model, check_rxn_id = ''):
     
     model.remove_reactions(blocked_rxns)
     return blocked_rxns
+
+def biodegradation(model, target_rxn):
+    '''
+    a function to take care of biodegrading a xenobiotic by setting the bounds
+    for the target reaction and ensuring the accumation of side products if needed.
+
+    Parameters
+    ----------
+    model : Chassis Model
+    target_rxn : string, the ID of the target reaction
+
+    Returns
+    -------
+    None.
+
+    '''
+    model.objective = target_rxn # ensure the objective is set correctly
+    model.reactions.get_by_id(target_rxn).bounds = (-1000, 0)
+    model.objective_direction = 'min' # we are consuming the target
+    for met in model.metabolites:
+        if 'metabolite_' in met.id: # all foreign metabolites can be accumulated
+            rxn_id = EXPORTID + met.id
+            if rxn_id != target_rxn: # don't add for the target again
+                demand_rxn = Reaction(rxn_id,
+                                    lower_bound = 0, # only to be exported
+                                    upper_bound = 1000) 
+                model.add_reactions([demand_rxn])
+                demand_rxn.add_metabolites({met.id:-1})
+    return
