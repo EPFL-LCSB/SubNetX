@@ -65,7 +65,8 @@ def pthw_parser(pthw):
     return rxns, target, boundary_mets, pthw_id, bchd_pthws
 
 # Helper function to parse one side
-def parse_side(side):
+def parse_side(side, sense):
+    # if sense 1 produced if -1 consumed in the reaction
     compounds = side.split('+')
     parsed = {}
     for compound in compounds:
@@ -76,7 +77,7 @@ def parse_side(side):
             coef1, coef2, name = match.groups()
             coef = int(coef1 or coef2 or 1)
             name = name.strip()
-            parsed[name] = coef
+            parsed[name] = sense * coef
     return parsed
 
 
@@ -92,8 +93,8 @@ def rxn_parser(rxns, rxn_list):
         participants = safe_split(rxn_print, ' ==> ', ' <=> ', ' <==>') # splitting reactants and products
         reactants = participants[0]
         products = participants[1]
-        reactant_dict = parse_side(reactants)
-        product_dict = parse_side(products)
+        reactant_dict = parse_side(reactants, -1)
+        product_dict = parse_side(products, 1)
         # check if at least a compound is both among products and reactants, not to add the rxn
         if len(set(reactant_dict.keys()) - set(product_dict.keys())) != \
             len(set(reactant_dict.keys())):
