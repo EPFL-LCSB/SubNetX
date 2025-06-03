@@ -9,14 +9,14 @@ import pandas as pd
 
 from cobra import Metabolite, Reaction
 
+from pytfa.core.model import LCSBModel
 from cobra import Model
-from pytfa.thermo.tmodel import ThermoModel
+from pytfa.utils.logger import get_bistream_logger
 
 from ..io.parser import met_parser, rxn_parser
 
 
 LCSBID = 'LCSBID'
-ANNOTATION = 'seed_id'
 EXPORTID = 'DM_'
 
 def hash2id_met(mets, met_id_prefix): 
@@ -29,11 +29,10 @@ def hash2id_rxn(rxns, rxn_id_prefix):
     rxns_id = {rxn : rxn_id_prefix+str(ind) for ind,rxn in enumerate(rxns)}
     return rxns_id
 
-class ChassisModel(ThermoModel):
+class ChassisModel(LCSBModel, Model):
     
-    def __init__(self, model,
+    def __init__(self, model, name=None,
                  organism='', met_lexicon=None, rxn_lexicon=None, 
-                 inplace=True,
                  *args, **kwargs):
         '''
         
@@ -56,12 +55,7 @@ class ChassisModel(ThermoModel):
 
         '''
         
-        if not inplace:
-            new = model.copy()
-            self.__dict__ = new.__dict__
-        else:
-            # new = me_model
-            self.__dict__ = model.__dict__
+        LCSBModel.__init__(self, model, name)
 
         self.organism = organism
         self._met_lexicon = met_lexicon
@@ -70,6 +64,8 @@ class ChassisModel(ThermoModel):
         
         self._hetero_mets = {} # a dict to keep mets_id
         self._hetero_rxns = [] # a list to keep rxns
+        
+        self.logger = get_bistream_logger('Chassis model ' + str(self.name))
         
     @property
     def met_lexicon(self):
@@ -153,9 +149,8 @@ class ChassisModel(ThermoModel):
         
         self.add_metabolites(metabolites)
         for id_ in mets:
-            if mets_id[id_] != '': # make sure to have a real annotation
-                self.metabolites.get_by_id(mets_id[id_]).annotation = \
-                    {ANNOTATION : mets_annotation[id_]} # this is used to search in thermodb
+            self.metabolites.get_by_id(mets_id[id_]).annotation = \
+                mets_annotation[id_] # this is also used to search in thermodb
     
         ## This part connects metabolites and reactions
         # Updating the metabolites in the added reactions:
@@ -239,3 +234,8 @@ class ChassisModel(ThermoModel):
         old_dict.update(new_dict)
         self.rxn_lexicon = old_dict
         return
+    
+    def copy(self):
+        """Return a deep copy of the ChassisModel instance."""
+        from copy import deepcopy
+        return deepcopy(self)

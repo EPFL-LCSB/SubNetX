@@ -10,14 +10,14 @@ from os.path import join as pjoin
 import os
 import re
 
-RXN_ID_COL  = 'R_PR_UID'
-RXN_EQ_COL  = 'R_PR_STOICH'
-MET_ID_COL  = 'M_PR_UID'
-MET_FOR_COL = 'M_PR_FORMULA'
-MET_NAM_COL = 'M_PR_NAME'
-MET_BAR_COL = 'M_PR_CHARGE'
-MET_ANN_COL = 'M_XR_KEGG'
-
+RXN_ID_COL   = 'R_PR_UID'
+RXN_EQ_COL   = 'R_PR_STOICH'
+MET_ID_COL   = 'M_PR_UID'
+MET_FOR_COL  = 'M_PR_FORMULA'
+MET_NAM_COL  = 'M_PR_NAME'
+MET_BAR_COL  = 'M_PR_CHARGE'
+MET_KEGG_COL = 'M_XR_KEGG'
+MET_INCH_COL  = 'M_XR_INCHIKEY' 
 
 # Get the directory where this Python file is located
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -133,6 +133,7 @@ def met_parser(mets, met_list, host):
                 if not pd.isna(met_data[MET_FOR_COL].values[0]) else ''
         else:
             mets_formula[met] = ''
+            
         if MET_BAR_COL in met_data.columns:
             mets_charge[met] = met_data[MET_BAR_COL].values[0] \
                 if not pd.isna(met_data[MET_BAR_COL].values[0]) else 0
@@ -140,21 +141,24 @@ def met_parser(mets, met_list, host):
             mets_charge[met] = 0
                 
         # Use annotations if exist to improve integration
-        if MET_ANN_COL in met_data.columns:
+        if MET_KEGG_COL in met_data.columns: # Specific for KEGG annotation
             with open(filename, 'rb') as kegg2seed:
-                kegg_id = met_data[MET_ANN_COL].values[0]
+                kegg_id = met_data[MET_KEGG_COL].values[0]
                 if not pd.isna(kegg_id):
                     try:
-                        mets_annotation[met] = \
-                            kegg2seed[kegg2seed['kegg']==kegg_id]['seed'].values[0]
+                        mets_annotation[met] = { 'kegg.compound' : kegg_id, 
+                                                'seed.compound' : \
+                            kegg2seed[kegg2seed['kegg']==kegg_id]['seed'].values[0]}
                     except IndexError: # there is no seed match for this kegg
-                        mets_annotation[met] = 'fakeID_{}'.format(numerator)
-                        numerator = numerator +1
-        else:
-           mets_annotation[met] = 'fakeID_{}'.format(numerator)
+                        mets_annotation[met] = { 'kegg.compound' : kegg_id}
+        elif MET_INCH_COL in met_data.columns: # Specifically for INChIKey, important for different matchings
+            if not pd.isna(met_data[MET_INCH_COL].values[0]):
+                mets_annotation[met] = {'inchikey':met_data[MET_INCH_COL].values[0]}
+        # WARNING: other annotations are not implemented
+        else: # if no annotation, then fill it with pytfa like fake annotations
+           mets_annotation[met] = {'seed_id' : 'fakeID_{}'.format(numerator)}
            numerator = numerator +1
                     
-
     return mets_formula, mets_name, mets_charge, mets_annotation
 
     
