@@ -18,6 +18,7 @@ MET_NAM_COL  = 'M_PR_NAME'
 MET_BAR_COL  = 'M_PR_CHARGE'
 MET_KEGG_COL = 'M_XR_KEGG'
 MET_INCH_COL  = 'M_XR_INCHIKEY' 
+MET_SMI_COL  = 'M_XR_SMILES' 
 
 # Get the directory where this Python file is located
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -158,6 +159,11 @@ def met_parser(mets, met_list, host):
         else: # if no annotation, then fill it with pytfa like fake annotations
            mets_annotation[met] = {'seed_id' : 'fakeID_{}'.format(numerator)}
            numerator = numerator +1
+           
+        if MET_SMI_COL in met_data.columns: # For thermodynamic data search
+            if not pd.isna(met_data[MET_INCH_COL].values[0]):
+                mets_annotation[met].update({'smiles':met_data[MET_SMI_COL].values[0]})
+        
                     
     return mets_formula, mets_name, mets_charge, mets_annotation
 
