@@ -24,7 +24,7 @@ MET_SMI_COL  = 'M_XR_SMILES'
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Construct the full path to the data file
-filename = os.path.join(base_dir, 'data', 'KEGG2SEED_update.xlsx')
+filename = os.path.join(base_dir, '..', '..', 'data', 'KEGG2SEED_update.xlsx')
 
 def input_parser_netw(the_path):
     # a function to parse the pathways, metabolites and reactions input files
