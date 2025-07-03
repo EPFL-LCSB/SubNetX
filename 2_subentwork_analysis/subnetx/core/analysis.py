@@ -8,9 +8,12 @@ Created on Tue Apr 27 19:02:30 2021
 import pickle
 import zlib
 import pandas as pd
+import ast
 
 from pytfa.thermo.equilibrator import build_thermo_from_equilibrator
 from pytfa import ThermoModel
+from pytfa.io import load_thermoDB
+from pytfa.utils.numerics import BIGM_DG
 
 from warnings import warn
 import os
@@ -22,6 +25,12 @@ import string
 import sys
 import warnings
 from contextlib import contextmanager
+
+# Get the directory where this Python file is located
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Construct the full path to the data file
+file_path = os.path.join(base_dir, '..', '..', 'data', 'thermo_data.thermodb')
 
 @contextmanager
 def suppress_output():
@@ -92,6 +101,24 @@ def thermo_evaluation(model, thermo_data=None, thermo_data_path=None,
                 # do this only for non-new metabolites as it saves for later use
                 met_list = [met for met in model.metabolites if met not in new_met_list]
                 thermo_data = build_thermo_from_equilibrator(met_list)
+                # for these compounds we may also use pytfa thermodb
+                # for cases with too large error (usually inorganics), use the other database to replace
+                pytfa_thermodb = load_thermoDB(file_path)
+                for id_, data in thermo_data['metabolites'].items():
+                    if data['deltaGf_err'] > BIGM_DG: # too large errors
+                        # the other database is keyed by SEED IDs
+                        try:
+                            seed_id = model.metabolites.get_by_id(id_).annotation['seed.compound']
+                            # the SEED IDs in annotaions might be a string, a list or, like "['cpd00009', 'cpd27787']"
+                            if isinstance(seed_id, str) and '[' in seed_id:
+                                seed_id = ast.literal_eval(seed_id)
+                            if isinstance(seed_id, list):
+                                seed_id = next(iter(seed_id))
+                            new_data = pytfa_thermodb['metabolites'][seed_id]
+                            thermo_data['metabolites'][id_] = new_data
+                        except KeyError:
+                            pass
+                
                 # in case the path is provided, try to save the thermo database for future use
                 if thermo_data_path is not None:
                     warn('The thermo database is being saved in the reference provided.')
@@ -104,7 +131,6 @@ def thermo_evaluation(model, thermo_data=None, thermo_data_path=None,
                         file.write(data)
                     
             else: # the reference to load a local thermodatabase
-                from pytfa.io import load_thermoDB
                 thermo_data = load_thermoDB(thermo_data_path)
                 
                 
@@ -129,6 +155,7 @@ def thermo_evaluation(model, thermo_data=None, thermo_data_path=None,
         # Creating the thermo model
     
         tmodel = ThermoModel(thermo_data, model)
+        
         # since the next functions try to match seed_id to the thermo database
         for met in tmodel.metabolites:
             met.annotation.update({'seed_id' : met.id})   
