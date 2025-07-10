@@ -93,73 +93,85 @@ def thermo_evaluation(model, thermo_data=None, thermo_data_path=None,
                       new_metabolites=False, new_met_list=[]):
     
     # Preparing the thermo-database
-    with suppress_output():
-        if thermo_data is None:
-            if thermo_data_path is None or \
-            not os.path.exists(thermo_data_path): # online thermo database
-                warn('The thermo database is not provided so eQuilibrator is runnning.')
-                # do this only for non-new metabolites as it saves for later use
-                met_list = [met for met in model.metabolites if met not in new_met_list]
-                thermo_data = build_thermo_from_equilibrator(met_list)
-                # for these compounds we may also use pytfa thermodb
-                # for cases with too large error (usually inorganics), use the other database to replace
-                pytfa_thermodb = load_thermoDB(file_path)
-                for id_, data in thermo_data['metabolites'].items():
-                    if data['deltaGf_err'] > BIGM_DG: # too large errors
-                        # the other database is keyed by SEED IDs
-                        try:
-                            seed_id = model.metabolites.get_by_id(id_).annotation['seed.compound']
-                            # the SEED IDs in annotaions might be a string, a list or, like "['cpd00009', 'cpd27787']"
-                            if isinstance(seed_id, str) and '[' in seed_id:
-                                seed_id = ast.literal_eval(seed_id)
-                            if isinstance(seed_id, list):
-                                seed_id = next(iter(seed_id))
-                            new_data = pytfa_thermodb['metabolites'][seed_id]
-                            thermo_data['metabolites'][id_] = new_data
-                        except KeyError:
-                            pass
-                
-                # in case the path is provided, try to save the thermo database for future use
-                if thermo_data_path is not None:
-                    warn('The thermo database is being saved in the reference provided.')
-                    with open(thermo_data_path, 'wb') as file:
-                        # Convert it to string with Pickle
-                        data = pickle.dumps(thermo_data, pickle.HIGHEST_PROTOCOL)
-                        # Compress it with zlib
-                        data = zlib.compress(data)
-                        # And write it to disk
-                        file.write(data)
-                    
-            else: # the reference to load a local thermodatabase
-                thermo_data = load_thermoDB(thermo_data_path)
-                
-                
-        if new_metabolites and new_met_list: # even in the case of local database we may still have new metabolites
-            # new metabolites are those that are probably not even cached database
-            # we need to create a DataFrame like the following:
-            # compound_df = pd.DataFrame(
-            #     data=[
-            #         ["OC(=O)C1=CC(NC(=O)C2=CC=CC=C2)=C(O)C=C1", "3B4HA", "3-Benzamido-4-hydroxybenzoic acid"],
-            #         ["NC1=C(O)C=CC(=C1)C(O)=O", "3A4HA", "3-Amino-4-hydroxybenzoic acid"]
-            #     ],
-            #     columns=["struct","coco_id", "name"]
-            # )
-            compound_df = pd.DataFrame(data=[
-                [met.annotation['smiles'], rand_id(), met.name] for met in new_met_list
-                ], columns=["struct","coco_id", "name"])
+    if thermo_data is None:
+        if thermo_data_path is None or \
+        not os.path.exists(thermo_data_path): # online thermo database
+            warn('The thermo database is not provided so eQuilibrator is runnning.')
+            # do this only for non-new metabolites as it saves for later use
+            met_list = [met for met in model.metabolites if met not in new_met_list]
+            thermo_data = build_thermo_from_equilibrator(met_list)
+            # for these compounds we may also use pytfa thermodb
+            # for cases with too large error (usually inorganics), use the other database to replace
+            pytfa_thermodb = load_thermoDB(file_path)
+            calorie2joule = 4.184 
+            for id_, data in thermo_data['metabolites'].items():
+                if data['deltaGf_err'] > BIGM_DG: # too large errors
+                    # the other database is keyed by SEED IDs
+                    try:
+                        seed_id = model.metabolites.get_by_id(id_).annotation['seed.compound']
+                        # the SEED IDs in annotaions might be a string, a list or, like "['cpd00009', 'cpd27787']"
+                        if isinstance(seed_id, str) and '[' in seed_id:
+                            seed_id = ast.literal_eval(seed_id)
+                        if isinstance(seed_id, list):
+                            seed_id = next(iter(seed_id))
+                        new_data = pytfa_thermodb['metabolites'][seed_id]
+                        thermo_data['metabolites'][id_]['deltaGf_err'] = \
+                            new_data['deltaGf_err'] * calorie2joule
+                        thermo_data['metabolites'][id_]['deltaGf_std'] = \
+                            new_data['deltaGf_std'] * calorie2joule
+                    except KeyError:
+                        pass
+                # correct the charges if needed
+                met_charge = model.metabolites.get_by_id(id_).charge
+                if data['charge_std'] != met_charge:
+                    if data['charge_std'] == 0:
+                        thermo_data['metabolites'][id_]['charge_std'] = met_charge
+                    else:
+                        warn(f"The charge for {id_} may not be properly calculated.")
             
-            met_smiles_dict = {met.id:met.annotation['smiles'] for met in new_met_list}
-            thermo_data_subset = build_thermo_novel(compound_df, met_smiles_dict)
-            thermo_data = append_thermodbs(thermo_data, thermo_data_subset)
-    
-        # Creating the thermo model
-    
-        tmodel = ThermoModel(thermo_data, model)
+            # in case the path is provided, try to save the thermo database for future use
+            if thermo_data_path is not None:
+                warn('The thermo database is being saved in the reference provided.')
+                with open(thermo_data_path, 'wb') as file:
+                    # Convert it to string with Pickle
+                    data = pickle.dumps(thermo_data, pickle.HIGHEST_PROTOCOL)
+                    # Compress it with zlib
+                    data = zlib.compress(data)
+                    # And write it to disk
+                    file.write(data)
+                
+        else: # the reference to load a local thermodatabase
+            thermo_data = load_thermoDB(thermo_data_path)
+            
+            
+    if new_metabolites and new_met_list: # even in the case of local database we may still have new metabolites
+        # new metabolites are those that are probably not even cached database
+        # we need to create a DataFrame like the following:
+        # compound_df = pd.DataFrame(
+        #     data=[
+        #         ["OC(=O)C1=CC(NC(=O)C2=CC=CC=C2)=C(O)C=C1", "3B4HA", "3-Benzamido-4-hydroxybenzoic acid"],
+        #         ["NC1=C(O)C=CC(=C1)C(O)=O", "3A4HA", "3-Amino-4-hydroxybenzoic acid"]
+        #     ],
+        #     columns=["struct","coco_id", "name"]
+        # )
+        novel_met_list = [met for met in new_met_list \
+                          if met.id not in thermo_data['metabolites']] # only those without thermo calculated
+        compound_df = pd.DataFrame(data=[
+            [met.annotation['smiles'], rand_id(), met.name] for met in novel_met_list
+            ], columns=["struct","coco_id", "name"])
         
-        # since the next functions try to match seed_id to the thermo database
-        for met in tmodel.metabolites:
-            met.annotation.update({'seed_id' : met.id})   
-        tmodel.prepare()
-        tmodel.convert()           
+        met_smiles_dict = {met.id:met.annotation['smiles'] for met in novel_met_list}
+        thermo_data_subset = build_thermo_novel(compound_df, met_smiles_dict)
+        thermo_data = append_thermodbs(thermo_data, thermo_data_subset)
+
+    # Creating the thermo model
+
+    tmodel = ThermoModel(thermo_data, model)
+    
+    # Because the next functions try to match seed_id to the thermo database
+    for met in tmodel.metabolites:
+        met.annotation.update({'seed_id' : met.id})   
+    tmodel.prepare()
+    tmodel.convert()           
     
     return thermo_data, tmodel
