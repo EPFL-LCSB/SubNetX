@@ -9,6 +9,7 @@ import pickle
 import zlib
 import pandas as pd
 import ast
+from openbabel import openbabel
 
 from pytfa.thermo.equilibrator import build_thermo_from_equilibrator
 from pytfa import ThermoModel
@@ -93,13 +94,17 @@ def thermo_evaluation(model, thermo_data=None, thermo_data_path=None,
                       new_metabolites=False, new_met_list=[]):
     
     # Preparing the thermo-database
-    if thermo_data is None:
+    if isinstance(thermo_data, dict): # directly provided
+        pass
+    
+    elif thermo_data is None:
         if thermo_data_path is None or \
         not os.path.exists(thermo_data_path): # online thermo database
             warn('The thermo database is not provided so eQuilibrator is runnning.')
             # do this only for non-new metabolites as it saves for later use
             met_list = [met for met in model.metabolites if met not in new_met_list]
-            thermo_data = build_thermo_from_equilibrator(met_list)
+            with suppress_output():
+                thermo_data = build_thermo_from_equilibrator(met_list)
             # for these compounds we may also use pytfa thermodb
             # for cases with too large error (usually inorganics), use the other database to replace
             pytfa_thermodb = load_thermoDB(file_path)
@@ -161,13 +166,20 @@ def thermo_evaluation(model, thermo_data=None, thermo_data_path=None,
             ], columns=["struct","coco_id", "name"])
         
         met_smiles_dict = {met.id:met.annotation['smiles'] for met in novel_met_list}
-        thermo_data_subset = build_thermo_novel(compound_df, met_smiles_dict)
+        with suppress_output():
+            openbabel.obErrorLog.StopLogging() # Disable the warnings
+            thermo_data_subset = build_thermo_novel(compound_df, met_smiles_dict)
+        for id_, data in thermo_data_subset['metabolites'].items():
+            if data['deltaGf_err'] > BIGM_DG: # too large errors
+                data['deltaGf_err'] = 0.2 * data['deltaGf_std'] # if it's too large set the 20%
         thermo_data = append_thermodbs(thermo_data, thermo_data_subset)
 
     # Creating the thermo model
-
-    tmodel = ThermoModel(thermo_data, model)
-    
+    if not isinstance(model, ThermoModel):
+        tmodel = ThermoModel(thermo_data, model)
+    else:
+        model.thermo_data = thermo_data # just update the thermo data
+        
     # Because the next functions try to match seed_id to the thermo database
     for met in tmodel.metabolites:
         met.annotation.update({'seed_id' : met.id})   
