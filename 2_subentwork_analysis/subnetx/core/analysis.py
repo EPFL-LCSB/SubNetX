@@ -108,8 +108,10 @@ def thermo_evaluation(model, thermo_data=None, thermo_data_path=None,
             # for these compounds we may also use pytfa thermodb
             # for cases with too large error (usually inorganics), use the other database to replace
             pytfa_thermodb = load_thermoDB(file_path)
+            removable_ids = []
             calorie2joule = 4.184 
-            for id_, data in thermo_data['metabolites'].items():
+            metData = thermo_data['metabolites']
+            for id_, data in metData.items():
                 if data['deltaGf_err'] > BIGM_DG: # too large errors
                     # the other database is keyed by SEED IDs
                     try:
@@ -120,19 +122,27 @@ def thermo_evaluation(model, thermo_data=None, thermo_data_path=None,
                         if isinstance(seed_id, list):
                             seed_id = next(iter(seed_id))
                         new_data = pytfa_thermodb['metabolites'][seed_id]
-                        thermo_data['metabolites'][id_]['deltaGf_err'] = \
+                        # rare cases the pytfa database includes junk data
+                        if (new_data['deltaGf_std'] == 0 and \
+                            new_data['deltaGf_err'] == BIGM_DG):
+                            removable_ids += [id_]
+                        metData[id_]['deltaGf_err'] = \
                             new_data['deltaGf_err'] * calorie2joule
-                        thermo_data['metabolites'][id_]['deltaGf_std'] = \
+                        metData[id_]['deltaGf_std'] = \
                             new_data['deltaGf_std'] * calorie2joule
+                        metData[id_]['pKa'] = new_data['pKa']
+                        metData[id_]['formula'] = new_data['formula']    
                     except KeyError:
                         pass
                 # correct the charges if needed
                 met_charge = model.metabolites.get_by_id(id_).charge
                 if data['charge_std'] != met_charge:
                     if data['charge_std'] == 0:
-                        thermo_data['metabolites'][id_]['charge_std'] = met_charge
+                        metData[id_]['charge_std'] = met_charge
                     else:
                         warn(f"The charge for {id_} may not be properly calculated.")
+            thermo_data['metabolites'] = {k:v for k,v in thermo_data['metabolites'].items() \
+                                          if k not in removable_ids}
             
             # in case the path is provided, try to save the thermo database for future use
             if thermo_data_path is not None:
